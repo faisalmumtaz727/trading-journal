@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TradeEdge Journal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #faf9f6;
+    --border: #e8e4dc;
+    --text: #1a1814;
+    --text2: #6b6560;
+    --text3: #a09890;
+    --accent: #e8560a;
+    --accent2: #f0841a;
+    --green: #1d8a4f;
+    --green-bg: #edf7f2;
+    --red: #c0392b;
+    --red-bg: #fdf0ef;
+    --yellow: #d4820a;
+    --yellow-bg: #fef8ed;
+    --blue: #1a5fa8;
+    --blue-bg: #edf2fb;
+    --shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* TOP NAV */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1.5px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+  }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab {
+    padding: 8px 18px; border-radius: 8px; cursor: pointer;
+    font-size: 14px; font-weight: 500; color: var(--text2);
+    transition: all 0.2s; border: none; background: none;
+  }
+  .nav-tab:hover { background: var(--surface2); color: var(--text); }
+  .nav-tab.active { background: var(--accent); color: #fff; font-weight: 600; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .streak-badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white; border-radius: 20px; padding: 5px 14px;
+    font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px;
+  }
+
+  /* PAGES */
+  .page { display: none; padding: 28px 32px; max-width: 1100px; margin: 0 auto; }
+  .page.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* DASHBOARD */
+  .page-title { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+  .page-sub { color: var(--text2); font-size: 14px; margin-bottom: 24px; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 20px; border: 1.5px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 4px; height: 100%; background: var(--accent);
+  }
+  .stat-label { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
+  .stat-value.green { color: var(--green); }
+  .stat-value.red { color: var(--red); }
+  .stat-value.orange { color: var(--accent); }
+  .stat-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+  .card {
+    background: var(--surface); border-radius: var(--radius);
+    border: 1.5px solid var(--border); padding: 22px;
+  }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .card-title .icon { font-size: 18px; }
+
+  /* SCORE RING */
+  .score-center { display: flex; flex-direction: column; align-items: center; padding: 8px 0; }
+  .score-ring-wrap { position: relative; width: 130px; height: 130px; margin-bottom: 14px; }
+  .score-ring-wrap svg { transform: rotate(-90deg); }
+  .score-ring-value {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: var(--accent);
+    text-align: center; line-height: 1;
+  }
+  .score-ring-label { font-size: 11px; color: var(--text3); display: block; margin-top: 3px; }
+  .score-breakdown { width: 100%; }
+  .score-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .score-row:last-child { border-bottom: none; }
+  .score-row-label { color: var(--text2); }
+  .score-row-val { font-weight: 700; font-family: 'Syne', sans-serif; }
+  .bar-wrap { height: 6px; background: var(--border); border-radius: 3px; margin-top: 4px; }
+  .bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.6s ease; }
+
+  /* RECENT TRADES */
+  .trade-list { display: flex; flex-direction: column; gap: 10px; }
+  .trade-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-radius: var(--radius-sm);
+    background: var(--surface2); border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .trade-row:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(232,86,10,0.08); }
+  .trade-sym { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; min-width: 60px; }
+  .trade-type { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; min-width: 40px; text-align: center; }
+  .trade-type.long { background: var(--green-bg); color: var(--green); }
+  .trade-type.short { background: var(--red-bg); color: var(--red); }
+  .trade-detail { flex: 1; font-size: 12px; color: var(--text2); }
+  .trade-pnl { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+  .trade-pnl.pos { color: var(--green); }
+  .trade-pnl.neg { color: var(--red); }
+  .trade-disc { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; }
+  .disc-high { background: var(--green-bg); color: var(--green); }
+  .disc-mid { background: var(--yellow-bg); color: var(--yellow); }
+  .disc-low { background: var(--red-bg); color: var(--red); }
+
+  /* MOTIVATION QUOTE */
+  .quote-card {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    color: white; border-radius: var(--radius); padding: 22px 26px;
+    margin-bottom: 24px; position: relative; overflow: hidden;
+  }
+  .quote-card::after {
+    content: '"'; position: absolute; right: 20px; top: -10px;
+    font-size: 120px; opacity: 0.12; font-family: 'Syne', sans-serif; font-weight: 800; line-height: 1;
+  }
+  .quote-text { font-size: 15px; font-weight: 500; line-height: 1.6; margin-bottom: 8px; position: relative; z-index: 1; }
+  .quote-author { font-size: 12px; opacity: 0.8; font-weight: 600; }
+
+  /* FORM */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.7px; }
+  input, select, textarea {
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    padding: 10px 14px; font-size: 14px; font-family: 'DM Sans', sans-serif;
+    background: var(--surface); color: var(--text); outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; }
+
+  /* RULES CHECKLIST */
+  .rules-section { margin-bottom: 20px; }
+  .rules-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+  .rule-check {
+    display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px;
+    border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+    background: var(--surface2); margin-bottom: 8px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .rule-check:hover { border-color: var(--accent); }
+  .rule-check input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; margin-top: 1px; flex-shrink: 0; }
+  .rule-check-text { font-size: 13px; line-height: 1.5; }
+  .rule-check.checked { background: var(--green-bg); border-color: var(--green); }
+
+  /* BTN */
+  .btn {
+    padding: 12px 28px; border-radius: var(--radius-sm); border: none;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #d14a06; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(232,86,10,0.25); }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1.5px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sm { padding: 7px 16px; font-size: 13px; }
+  .btn-row { display: flex; gap: 10px; margin-top: 22px; }
+
+  /* WEEKLY REPORT */
+  .report-header {
+    background: var(--surface); border-radius: var(--radius);
+    border: 1.5px solid var(--border); padding: 24px; margin-bottom: 20px;
+  }
+  .report-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+  .report-period { color: var(--text2); font-size: 14px; }
+  .report-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0; }
+  .report-stat { text-align: center; padding: 16px; background: var(--surface2); border-radius: var(--radius-sm); border: 1px solid var(--border); }
+  .report-stat-value { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+  .report-stat-label { font-size: 12px; color: var(--text3); font-weight: 600; }
+
+  .progress-section { margin-bottom: 20px; }
+  .progress-item { margin-bottom: 14px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .progress-bar { height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 5px; transition: width 0.8s ease; }
+  .fill-green { background: linear-gradient(90deg, var(--green), #2dbe6c); }
+  .fill-orange { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .fill-blue { background: linear-gradient(90deg, var(--blue), #3d8bde); }
+
+  .feedback-box {
+    border-radius: var(--radius); padding: 20px;
+    border-left: 4px solid;
+    margin-bottom: 14px;
+  }
+  .feedback-box.good { background: var(--green-bg); border-color: var(--green); }
+  .feedback-box.warn { background: var(--yellow-bg); border-color: var(--yellow); }
+  .feedback-box.bad { background: var(--red-bg); border-color: var(--red); }
+  .feedback-box h4 { font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: 6px; font-size: 14px; }
+  .feedback-box p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* TRADE DETAIL MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); z-index: 1000;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 28px; width: 90%; max-width: 520px;
+    max-height: 85vh; overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
+  .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text3); }
+
+  .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-key { color: var(--text2); font-weight: 500; }
+  .detail-val { font-weight: 700; font-family: 'Syne', sans-serif; }
+
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; margin: 2px; }
+  .tag-orange { background: #fff0e8; color: var(--accent); }
+  .tag-blue { background: var(--blue-bg); color: var(--blue); }
+
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--text3); }
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+
+  .filter-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: var(--text2); }
+  .filter-btn.active, .filter-btn:hover { border-color: var(--accent); color: var(--accent); background: #fff0e8; }
+
+  .toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: var(--text); color: white; padding: 14px 22px;
+    border-radius: var(--radius-sm); font-size: 14px; font-weight: 600;
+    box-shadow: var(--shadow-lg); z-index: 9999;
+    animation: slideIn 0.3s ease;
+    display: none;
+  }
+  .toast.show { display: block; }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+
+  @media (max-width: 768px) {
+    .page { padding: 20px 16px; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .report-grid { grid-template-columns: 1fr 1fr; }
+    .nav-tabs { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="logo">Trade<span>Edge</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('dashboard')">📊 Dashboard</button>
+    <button class="nav-tab" onclick="showPage('log')">➕ Log Trade</button>
+    <button class="nav-tab" onclick="showPage('journal')">📋 Journal</button>
+    <button class="nav-tab" onclick="showPage('report')">📈 Report</button>
+    <button class="nav-tab" onclick="showPage('rules')">⚖️ My Rules</button>
+    <button class="nav-tab" onclick="showPage('mistakes')">⚠️ Mistakes</button>
+  </div>
+  <div class="topbar-right">
+    <div class="streak-badge" id="streakBadge">🔥 0 Day</div>
+  </div>
+</nav>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="page-title">Your Trading Dashboard</div>
+  <div class="page-sub" id="dashDate">Loading...</div>
+
+  <div class="quote-card" id="quoteCard">
+    <div class="quote-text" id="quoteText">Loading motivation...</div>
+    <div class="quote-author" id="quoteAuthor">— Trader's Wisdom</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Trades</div>
+      <div class="stat-value" id="totalTrades">0</div>
+      <div class="stat-sub">All time</div>
+    </div>
+    <div class="stat-card" style="--accent: var(--green);">
+      <div class="stat-label">Win Rate</div>
+      <div class="stat-value green" id="winRate">0%</div>
+      <div class="stat-sub" id="wlSub">0W / 0L</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total P&L</div>
+      <div class="stat-value orange" id="totalPnl">$0</div>
+      <div class="stat-sub">Net result</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Discipline Score</div>
+      <div class="stat-value orange" id="avgDisc">0/10</div>
+      <div class="stat-sub">Average</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title"><span class="icon">🎯</span> Improvement Score</div>
+      <div class="score-center">
+        <div class="score-ring-wrap">
+          <svg width="130" height="130" viewBox="0 0 130 130">
+            <circle cx="65" cy="65" r="54" fill="none" stroke="#e8e4dc" stroke-width="12"/>
+            <circle cx="65" cy="65" r="54" fill="none" stroke="url(#grad1)" stroke-width="12"
+              stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="339.3" id="scoreCircle"/>
+            <defs>
+              <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#e8560a"/>
+                <stop offset="100%" style="stop-color:#f0841a"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="score-ring-value"><span id="impScore">0</span><span class="score-ring-label">/ 100</span></div>
+        </div>
+        <div class="score-breakdown" id="scoreBreakdown">
+          <div class="score-row">
+            <span class="score-row-label">Discipline</span>
+            <span class="score-row-val" id="sbDisc">0%</span>
+          </div>
+          <div style="padding:6px 0"><div class="bar-wrap"><div class="bar-fill" id="barDisc" style="width:0%"></div></div></div>
+          <div class="score-row">
+            <span class="score-row-label">Win Rate</span>
+            <span class="score-row-val" id="sbWin">0%</span>
+          </div>
+          <div style="padding:6px 0"><div class="bar-wrap"><div class="bar-fill" id="barWin" style="width:0%"></div></div></div>
+          <div class="score-row">
+            <span class="score-row-label">Consistency</span>
+            <span class="score-row-val" id="sbCons">0%</span>
+          </div>
+          <div style="padding:6px 0"><div class="bar-wrap"><div class="bar-fill" id="barCons" style="width:0%"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📋</span> Recent Trades</div>
+      <div class="trade-list" id="recentList">
+        <div class="empty-state"><div class="icon">📭</div><p>No trades logged yet.<br>Start logging your first trade!</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOG TRADE -->
+<div class="page" id="page-log">
+  <div class="page-title">Log New Trade</div>
+  <div class="page-sub">Record every detail. A documented trade is a learned trade.</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div class="card" style="grid-column:1/-1;">
+      <div class="card-title"><span class="icon">📊</span> Trade Details</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Symbol / Pair</label>
+          <input type="text" id="fSym" placeholder="e.g. XAUUSD, EURUSD, BTC/USDT" style="text-transform:uppercase"/>
+        </div>
+        <div class="form-group">
+          <label>Trade Date</label>
+          <input type="date" id="fDate"/>
+        </div>
+        <div class="form-group">
+          <label>Direction</label>
+          <select id="fDir">
+            <option value="">Select</option>
+            <option value="long">📈 Long (Buy)</option>
+            <option value="short">📉 Short (Sell)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Session</label>
+          <select id="fSession">
+            <option value="london">🇬🇧 London</option>
+            <option value="new_york">🇺🇸 New York</option>
+            <option value="asian">🌏 Asian</option>
+            <option value="overlap">⚡ Overlap</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Entry Price</label>
+          <input type="number" id="fEntry" placeholder="0.00" step="any"/>
+        </div>
+        <div class="form-group">
+          <label>Exit Price</label>
+          <input type="number" id="fExit" placeholder="0.00" step="any"/>
+        </div>
+        <div class="form-group">
+          <label>Lot / Position Size</label>
+          <input type="number" id="fLot" placeholder="e.g. 0.1" step="any"/>
+        </div>
+        <div class="form-group">
+          <label>P&L (Profit/Loss) $</label>
+          <input type="number" id="fPnl" placeholder="e.g. 50 or -30" step="any"/>
+        </div>
+        <div class="form-group">
+          <label>R:R Ratio</label>
+          <input type="text" id="fRR" placeholder="e.g. 1:2"/>
+        </div>
+        <div class="form-group">
+          <label>Result</label>
+          <select id="fResult">
+            <option value="">Select</option>
+            <option value="win">✅ Win</option>
+            <option value="loss">❌ Loss</option>
+            <option value="breakeven">➖ Breakeven</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🧠</span> Entry Reasons</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Setup / Pattern</label>
+          <select id="fSetup">
+            <option value="">Select setup</option>
+            <option>Breakout</option>
+            <option>Pullback to Support</option>
+            <option>Trendline Bounce</option>
+            <option>ICT Order Block</option>
+            <option>Fair Value Gap (FVG)</option>
+            <option>SMC Structure Shift</option>
+            <option>EMA Cross</option>
+            <option>Divergence (RSI/MACD)</option>
+            <option>Supply/Demand Zone</option>
+            <option>News Trade</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Entry Reason (apni zuban mein)</label>
+          <textarea id="fReason" placeholder="Maine yeh trade kyun li? Kya signal tha? Kya confirmation mila?"></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Market Bias (Higher TF)</label>
+          <select id="fBias">
+            <option value="">Select</option>
+            <option value="bullish">📈 Bullish</option>
+            <option value="bearish">📉 Bearish</option>
+            <option value="ranging">↔️ Ranging</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">⚖️</span> Discipline Checklist</div>
+      <div id="disciplineChecks"></div>
+      <div style="margin-top:14px;padding:12px 14px;background:var(--surface2);border-radius:var(--radius-sm);border:1.5px solid var(--border);">
+        <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;">DISCIPLINE SCORE</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--accent);" id="liveScore">0</div>
+          <div style="flex:1">
+            <div class="bar-wrap" style="height:8px;"><div class="bar-fill" id="liveBar" style="width:0%"></div></div>
+            <div style="font-size:11px;color:var(--text3);margin-top:4px;" id="scoreHint">Check rules followed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="grid-column:1/-1;">
+      <div class="card-title"><span class="icon">💭</span> Post-Trade Notes</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>What went right?</label>
+          <textarea id="fGood" placeholder="Trade mein kya acha hua? Kya plan k mutabiq tha?"></textarea>
+        </div>
+        <div class="form-group full">
+          <label>What went wrong / lessons?</label>
+          <textarea id="fBad" placeholder="Kya galti hoi? Agle baar kya better kr sakta/sakti hoon?"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Emotional State</label>
+          <select id="fEmotion">
+            <option value="">Select</option>
+            <option value="calm">😌 Calm & Focused</option>
+            <option value="greedy">🤑 Greedy</option>
+            <option value="fearful">😰 Fearful</option>
+            <option value="revenge">😤 Revenge Trading</option>
+            <option value="bored">😑 Bored</option>
+            <option value="fomo">⚡ FOMO</option>
+            <option value="confident">💪 Confident</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Followed Trading Plan?</label>
+          <select id="fPlan">
+            <option value="yes">✅ Yes, fully</option>
+            <option value="partial">⚡ Partially</option>
+            <option value="no">❌ No</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveTrade()">💾 Save Trade</button>
+        <button class="btn btn-secondary" onclick="clearForm()">🗑️ Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JOURNAL -->
+<div class="page" id="page-journal">
+  <div class="section-header">
+    <div>
+      <div class="page-title">Trade Journal</div>
+      <div class="page-sub">All your logged trades</div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="showPage('log')">+ Log Trade</button>
+  </div>
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="filterTrades('all', this)">All</button>
+    <button class="filter-btn" onclick="filterTrades('win', this)">✅ Wins</button>
+    <button class="filter-btn" onclick="filterTrades('loss', this)">❌ Losses</button>
+    <button class="filter-btn" onclick="filterTrades('high_disc', this)">⭐ High Discipline</button>
+    <button class="filter-btn" onclick="filterTrades('low_disc', this)">⚠️ Low Discipline</button>
+  </div>
+  <div id="journalList"></div>
+</div>
+
+<!-- REPORT -->
+<div class="page" id="page-report">
+  <div class="page-title">Weekly Progress Report</div>
+  <div class="page-sub">Your performance analysis — generated automatically</div>
+
+  <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+    <button class="btn btn-primary" onclick="generateReport('week')">This Week</button>
+    <button class="btn btn-secondary" onclick="generateReport('month')">This Month</button>
+    <button class="btn btn-secondary" onclick="generateReport('all')">All Time</button>
+    <button class="btn btn-secondary" onclick="exportReport()">⬇️ Export</button>
+  </div>
+
+  <div id="reportContent">
+    <div class="empty-state card"><div class="icon">📊</div><p>Click "This Week" to generate your report</p></div>
+  </div>
+</div>
+
+<!-- RULES -->
+<div class="page" id="page-rules">
+  <div class="page-title">My Trading Rules</div>
+  <div class="page-sub">Customize the rules that appear in your discipline checklist</div>
+  <div class="card">
+    <div id="rulesList"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <input type="text" id="newRuleInput" placeholder="Add new trading rule..." style="flex:1"/>
+      <button class="btn btn-primary" onclick="addRule()">+ Add Rule</button>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title">⚠️ Danger Zone</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">This will permanently delete all your trade data. Cannot be undone.</p>
+    <button class="btn btn-secondary" onclick="clearAll()" style="color:var(--red);border-color:var(--red);">🗑️ Clear All Data</button>
+  </div>
+</div>
+
+<!-- MISTAKES LOG -->
+<div class="page" id="page-mistakes">
+  <div class="page-title">⚠️ Mistakes Log</div>
+  <div class="page-sub">Raat ko sone se pehle in sab ko ek baar zaroor padho — dobara wahi ghalti mat karna.</div>
+
+  <!-- NIGHTLY REVIEW BANNER -->
+  <div style="background:linear-gradient(135deg,#1a1814 0%,#2d2520 100%);color:white;border-radius:var(--radius);padding:20px 24px;margin-bottom:22px;display:flex;align-items:center;gap:16px;">
+    <div style="font-size:36px;">🌙</div>
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;margin-bottom:4px;">Raat Ki Review — Closing Time</div>
+      <div style="font-size:13px;opacity:0.75;line-height:1.6;">Market band hone ke baad yahan aao. Apni mistakes padho. Aankhein band karo. Waada karo — kal yeh nahi hoga.</div>
+    </div>
+    <div style="margin-left:auto;text-align:center;flex-shrink:0;">
+      <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;" id="mistakeCount">0</div>
+      <div style="font-size:11px;opacity:0.6;font-weight:600;">TOTAL</div>
+    </div>
+  </div>
+
+  <!-- ADD MISTAKE FORM -->
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title"><span class="icon">✍️</span> Nai Ghalti Likhein</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="mDate"/>
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="mCat">
+          <option value="discipline">⚖️ Discipline</option>
+          <option value="entry">🎯 Entry — Jaldi ya galat entry</option>
+          <option value="exit">🚪 Exit — Jaldi ya deri se exit</option>
+          <option value="sl">🛑 Stop Loss — SL nahi lagaya / door lagaya</option>
+          <option value="emotion">🧠 Emotion — Greed / Fear / Revenge</option>
+          <option value="overtrading">📉 Overtrading</option>
+          <option value="fomo">⚡ FOMO — Bhagti train mein chad gaya</option>
+          <option value="plan">📋 Plan Nahi Follow Kiya</option>
+          <option value="sizing">💰 Position Size Zyada Thi</option>
+          <option value="other">🔖 Aur Kuch</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Ghalti ka Pura Byaan (apni zuban mein)</label>
+        <textarea id="mDesc" placeholder="Mujhe kya hua? Kya socha tha? Kya ho gaya? Agle baar kya karunga/karungi?..." style="min-height:90px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Trade Symbol (agar kisi trade se ho)</label>
+        <input type="text" id="mSym" placeholder="e.g. XAUUSD (optional)" style="text-transform:uppercase"/>
+      </div>
+      <div class="form-group">
+        <label>Nuqsaan (agar hua)</label>
+        <input type="number" id="mLoss" placeholder="e.g. -45 (optional)" step="any"/>
+      </div>
+      <div class="form-group full">
+        <label>Aage Se Kya Karunga/Karungi (Solution)</label>
+        <textarea id="mFix" placeholder="Is ghalti ko avoid karne ke liye mera commitment..." style="min-height:70px;"></textarea>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveMistake()">💾 Save Karo</button>
+      <button class="btn btn-secondary" onclick="clearMistakeForm()">🗑️ Clear</button>
+    </div>
+  </div>
+
+  <!-- FILTER -->
+  <div class="filter-row" id="mistakeFilters">
+    <button class="filter-btn active" onclick="filterMistakes('all',this)">Sab</button>
+    <button class="filter-btn" onclick="filterMistakes('discipline',this)">⚖️ Discipline</button>
+    <button class="filter-btn" onclick="filterMistakes('emotion',this)">🧠 Emotion</button>
+    <button class="filter-btn" onclick="filterMistakes('sl',this)">🛑 SL</button>
+    <button class="filter-btn" onclick="filterMistakes('fomo',this)">⚡ FOMO</button>
+    <button class="filter-btn" onclick="filterMistakes('overtrading',this)">📉 Overtrading</button>
+  </div>
+
+  <!-- MISTAKES LIST -->
+  <div id="mistakesList"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="tradeModal">
+  <div class="modal">
+    <div class="modal-title">Trade Details <button class="modal-close" onclick="closeModal()">×</button></div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== DATA =====
+const DEFAULT_RULES = [
+  "Wait for HTF confirmation before entering",
+  "SL placed before entry — no SL, no trade",
+  "Risk per trade max 1-2%",
+  "Traded only my planned sessions",
+  "No revenge trading after a loss",
+  "Waited for entry, did not chase price",
+  "TP at logical level, not moved out of greed",
+  "Checked macro/news before trading",
+  "No overtrading — max 2 trades per session",
+  "Emotional check done before entry"
+];
+
+const QUOTES = [
+  { text: "The goal of a successful trader is to make the best trades. Money is secondary.", author: "Alexander Elder" },
+  { text: "Cut your losses short and let your profits run. This is the golden rule.", author: "Market Wisdom" },
+  { text: "Patience is not the ability to wait, but how you act while waiting.", author: "Joyce Meyer" },
+  { text: "A plan without discipline is just a wish. Execute with precision.", author: "Trader's Code" },
+  { text: "Your job is not to predict the market. Your job is to react to it correctly.", author: "Pro Trader Rule" },
+  { text: "Risk management is the difference between a trader and a gambler.", author: "Market Wisdom" },
+  { text: "Discipline is doing what needs to be done, even when you don't want to do it.", author: "Trader's Mindset" },
+  { text: "The market is a device for transferring money from the impatient to the patient.", author: "Warren Buffett" },
+];
+
+function getData(key, def) { try { return JSON.parse(localStorage.getItem(key)) || def; } catch { return def; } }
+function setData(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+let trades = getData('tj_trades', []);
+let rules = getData('tj_rules', DEFAULT_RULES);
+let currentFilter = 'all';
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  // Set today date in form
+  document.getElementById('fDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('dashDate').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  // Quote
+  const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+  document.getElementById('quoteText').textContent = q.text;
+  document.getElementById('quoteAuthor').textContent = '— ' + q.author;
+
+  renderDashboard();
+  renderDisciplineChecks();
+  renderRules();
+  renderJournal();
+  updateStreak();
+});
+
+// ===== NAVIGATION =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const map = { dashboard:'dashboard', log:'log', journal:'journal', report:'report', rules:'rules', mistakes:'mistakes' };
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    const txt = t.textContent.toLowerCase();
+    if (id === 'dashboard' && txt.includes('dashboard')) t.classList.add('active');
+    else if (id === 'log' && txt.includes('log')) t.classList.add('active');
+    else if (id === 'journal' && txt.includes('journal')) t.classList.add('active');
+    else if (id === 'report' && txt.includes('report')) t.classList.add('active');
+    else if (id === 'rules' && txt.includes('rules')) t.classList.add('active');
+    else if (id === 'mistakes' && txt.includes('mistakes')) t.classList.add('active');
+  });
+  if (id === 'journal') renderJournal();
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'mistakes') renderMistakes();
+}
+
+// ===== DISCIPLINE CHECKS =====
+function renderDisciplineChecks() {
+  const container = document.getElementById('disciplineChecks');
+  container.innerHTML = rules.map((r, i) => `
+    <label class="rule-check" id="rc${i}">
+      <input type="checkbox" onchange="updateLiveScore()" id="rcheck${i}"/>
+      <span class="rule-check-text">${r}</span>
+    </label>
+  `).join('');
+}
+
+function updateLiveScore() {
+  const total = rules.length;
+  const checked = document.querySelectorAll('#disciplineChecks input:checked').length;
+  const score = total > 0 ? Math.round((checked / total) * 10) : 0;
+  const pct = total > 0 ? (checked / total) * 100 : 0;
+  document.getElementById('liveScore').textContent = score;
+  document.getElementById('liveBar').style.width = pct + '%';
+
+  // Update checked styling
+  rules.forEach((_, i) => {
+    const el = document.getElementById('rc' + i);
+    const cb = document.getElementById('rcheck' + i);
+    if (el && cb) el.classList.toggle('checked', cb.checked);
+  });
+
+  const hints = ['Needs work 😬', 'Getting there 💪', 'Good discipline ✅', 'Elite trader 🔥'];
+  const hi = score <= 3 ? 0 : score <= 6 ? 1 : score <= 8 ? 2 : 3;
+  document.getElementById('scoreHint').textContent = hints[hi];
+}
+
+// ===== SAVE TRADE =====
+function saveTrade() {
+  const sym = document.getElementById('fSym').value.trim().toUpperCase();
+  const dir = document.getElementById('fDir').value;
+  const result = document.getElementById('fResult').value;
+  const pnl = parseFloat(document.getElementById('fPnl').value);
+
+  if (!sym || !dir || !result) { showToast('⚠️ Symbol, Direction aur Result zaroor bharen'); return; }
+
+  const total = rules.length;
+  const checked = document.querySelectorAll('#disciplineChecks input:checked').length;
+  const discScore = total > 0 ? Math.round((checked / total) * 10) : 0;
+  const checkedRules = rules.filter((_, i) => document.getElementById('rcheck'+i)?.checked);
+  const missedRules = rules.filter((_, i) => !document.getElementById('rcheck'+i)?.checked);
+
+  const trade = {
+    id: Date.now(),
+    date: document.getElementById('fDate').value,
+    symbol: sym,
+    direction: dir,
+    session: document.getElementById('fSession').value,
+    entry: parseFloat(document.getElementById('fEntry').value) || 0,
+    exit: parseFloat(document.getElementById('fExit').value) || 0,
+    lot: parseFloat(document.getElementById('fLot').value) || 0,
+    pnl: isNaN(pnl) ? 0 : pnl,
+    rr: document.getElementById('fRR').value,
+    result: result,
+    setup: document.getElementById('fSetup').value,
+    reason: document.getElementById('fReason').value,
+    bias: document.getElementById('fBias').value,
+    discScore: discScore,
+    checkedRules: checkedRules,
+    missedRules: missedRules,
+    good: document.getElementById('fGood').value,
+    bad: document.getElementById('fBad').value,
+    emotion: document.getElementById('fEmotion').value,
+    plan: document.getElementById('fPlan').value,
+  };
+
+  trades.unshift(trade);
+  setData('tj_trades', trades);
+  clearForm();
+  renderDashboard();
+  updateStreak();
+  showToast('✅ Trade save ho gaya!');
+  showPage('journal');
+}
+
+function clearForm() {
+  ['fSym','fEntry','fExit','fLot','fPnl','fRR','fReason','fGood','fBad'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['fDir','fResult','fSetup','fBias'].forEach(id => { const el=document.getElementById(id); if(el) el.selectedIndex=0; });
+  document.getElementById('fSession').value='london';
+  document.getElementById('fEmotion').selectedIndex=0;
+  document.getElementById('fPlan').selectedIndex=0;
+  document.getElementById('fDate').value = new Date().toISOString().split('T')[0];
+  document.querySelectorAll('#disciplineChecks input').forEach(c => { c.checked=false; });
+  document.querySelectorAll('.rule-check').forEach(el => el.classList.remove('checked'));
+  updateLiveScore();
+}
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  const total = trades.length;
+  const wins = trades.filter(t => t.result === 'win').length;
+  const losses = trades.filter(t => t.result === 'loss').length;
+  const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
+  const totalPnl = trades.reduce((s, t) => s + (t.pnl || 0), 0);
+  const avgDisc = total > 0 ? (trades.reduce((s, t) => s + t.discScore, 0) / total).toFixed(1) : 0;
+
+  document.getElementById('totalTrades').textContent = total;
+  document.getElementById('winRate').textContent = winRate + '%';
+  document.getElementById('wlSub').textContent = `${wins}W / ${losses}L`;
+  const pnlEl = document.getElementById('totalPnl');
+  pnlEl.textContent = (totalPnl >= 0 ? '+$' : '-$') + Math.abs(totalPnl).toFixed(2);
+  pnlEl.className = 'stat-value ' + (totalPnl >= 0 ? 'green' : 'red');
+  document.getElementById('avgDisc').textContent = avgDisc + '/10';
+
+  // Improvement score
+  const discPct = total > 0 ? (parseFloat(avgDisc) / 10) * 100 : 0;
+  const consistency = calcConsistency();
+  const impScore = Math.round((winRate * 0.35) + (discPct * 0.40) + (consistency * 0.25));
+  document.getElementById('impScore').textContent = impScore;
+
+  // Animate ring
+  const circ = 339.3;
+  const offset = circ - (impScore / 100) * circ;
+  document.getElementById('scoreCircle').style.strokeDashoffset = offset;
+
+  document.getElementById('sbDisc').textContent = Math.round(discPct) + '%';
+  document.getElementById('sbWin').textContent = winRate + '%';
+  document.getElementById('sbCons').textContent = Math.round(consistency) + '%';
+  document.getElementById('barDisc').style.width = discPct + '%';
+  document.getElementById('barWin').style.width = winRate + '%';
+  document.getElementById('barCons').style.width = consistency + '%';
+
+  // Recent trades
+  const list = document.getElementById('recentList');
+  const recent = trades.slice(0, 5);
+  if (!recent.length) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No trades yet.<br>Start by logging your first trade!</p></div>';
+    return;
+  }
+  list.innerHTML = recent.map(t => tradeRowHTML(t)).join('');
+}
+
+function calcConsistency() {
+  if (trades.length < 3) return 0;
+  const planFollowed = trades.filter(t => t.plan === 'yes').length;
+  return Math.round((planFollowed / trades.length) * 100);
+}
+
+function tradeRowHTML(t) {
+  const discClass = t.discScore >= 8 ? 'disc-high' : t.discScore >= 5 ? 'disc-mid' : 'disc-low';
+  const pnlClass = t.pnl >= 0 ? 'pos' : 'neg';
+  const pnlStr = (t.pnl >= 0 ? '+$' : '-$') + Math.abs(t.pnl).toFixed(2);
+  return `<div class="trade-row" onclick="openModal(${t.id})">
+    <div class="trade-sym">${t.symbol}</div>
+    <div class="trade-type ${t.direction}">${t.direction === 'long' ? '▲ L' : '▼ S'}</div>
+    <div class="trade-detail">${t.setup || 'No setup'} · ${formatDate(t.date)}</div>
+    <div class="trade-pnl ${pnlClass}">${pnlStr}</div>
+    <div class="trade-disc ${discClass}">${t.discScore}/10</div>
+  </div>`;
+}
+
+// ===== JOURNAL =====
+function renderJournal(filter) {
+  if (filter) currentFilter = filter;
+  let list = [...trades];
+  if (currentFilter === 'win') list = list.filter(t => t.result === 'win');
+  if (currentFilter === 'loss') list = list.filter(t => t.result === 'loss');
+  if (currentFilter === 'high_disc') list = list.filter(t => t.discScore >= 8);
+  if (currentFilter === 'low_disc') list = list.filter(t => t.discScore < 5);
+
+  const container = document.getElementById('journalList');
+  if (!list.length) {
+    container.innerHTML = '<div class="empty-state card"><div class="icon">📭</div><p>Koi trade nahi mila is filter k saath.</p></div>';
+    return;
+  }
+  container.innerHTML = list.map(t => `
+    <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+      ${tradeRowHTML(t)}
+      <button class="btn btn-secondary btn-sm" onclick="deleteTrade(${t.id})" style="color:var(--red);border-color:var(--red);flex-shrink:0;">✕</button>
+    </div>
+  `).join('');
+}
+
+function filterTrades(f, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderJournal(f);
+}
+
+// ===== MODAL =====
+function openModal(id) {
+  const t = trades.find(x => x.id === id);
+  if (!t) return;
+  const emojis = { calm:'😌', greedy:'🤑', fearful:'😰', revenge:'😤', bored:'😑', fomo:'⚡', confident:'💪' };
+  const pnlColor = t.pnl >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('modalContent').innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <span class="tag tag-orange">${t.symbol}</span>
+      <span class="tag tag-orange">${t.direction === 'long' ? '▲ Long' : '▼ Short'}</span>
+      <span class="tag tag-blue">${t.result?.toUpperCase()}</span>
+      <span class="tag tag-blue">${t.session || ''}</span>
+    </div>
+    ${[
+      ['Date', formatDate(t.date)],
+      ['Entry / Exit', `${t.entry} → ${t.exit}`],
+      ['Lot Size', t.lot],
+      ['P&L', `<span style="color:${pnlColor};font-weight:800">${t.pnl >= 0 ? '+$' : '-$'}${Math.abs(t.pnl).toFixed(2)}</span>`],
+      ['R:R', t.rr || '-'],
+      ['Setup', t.setup || '-'],
+      ['HTF Bias', t.bias || '-'],
+      ['Discipline', `${t.discScore}/10`],
+      ['Emotion', `${emojis[t.emotion] || ''} ${t.emotion || '-'}`],
+      ['Plan Followed', t.plan || '-'],
+    ].map(([k,v]) => `<div class="detail-row"><span class="detail-key">${k}</span><span class="detail-val">${v}</span></div>`).join('')}
+    ${t.reason ? `<div style="margin-top:14px;"><div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:6px;">ENTRY REASON</div><div style="font-size:13px;color:var(--text2);line-height:1.6;background:var(--surface2);padding:12px;border-radius:8px;">${t.reason}</div></div>` : ''}
+    ${t.good ? `<div style="margin-top:12px;"><div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px;">✅ WHAT WENT RIGHT</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${t.good}</div></div>` : ''}
+    ${t.bad ? `<div style="margin-top:12px;"><div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;">❌ LESSON / MISTAKE</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${t.bad}</div></div>` : ''}
+    ${t.missedRules?.length ? `<div style="margin-top:12px;"><div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:6px;">⚠️ RULES MISSED</div><div style="font-size:13px;color:var(--text2);">${t.missedRules.join('<br>')}</div></div>` : ''}
+    <div style="margin-top:20px;">
+      <button class="btn btn-secondary btn-sm" onclick="deleteTrade(${t.id});closeModal();" style="color:var(--red);border-color:var(--red);">🗑️ Delete Trade</button>
+    </div>
+  `;
+  document.getElementById('tradeModal').classList.add('open');
+}
+function closeModal() { document.getElementById('tradeModal').classList.remove('open'); }
+document.getElementById('tradeModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+// ===== DELETE =====
+function deleteTrade(id) {
+  trades = trades.filter(t => t.id !== id);
+  setData('tj_trades', trades);
+  renderJournal();
+  renderDashboard();
+  showToast('🗑️ Trade delete ho gaya');
+}
+
+// ===== REPORT =====
+function generateReport(period) {
+  let filtered = [...trades];
+  const now = new Date();
+  let label = 'All Time';
+
+  if (period === 'week') {
+    const start = new Date(now); start.setDate(now.getDate() - 7);
+    filtered = trades.filter(t => new Date(t.date) >= start);
+    label = 'Last 7 Days';
+  } else if (period === 'month') {
+    const start = new Date(now); start.setDate(now.getDate() - 30);
+    filtered = trades.filter(t => new Date(t.date) >= start);
+    label = 'Last 30 Days';
+  }
+
+  const total = filtered.length;
+  if (!total) {
+    document.getElementById('reportContent').innerHTML = '<div class="empty-state card"><div class="icon">📭</div><p>Is period mein koi trade nahi mili.</p></div>';
+    return;
+  }
+
+  const wins = filtered.filter(t => t.result === 'win').length;
+  const losses = filtered.filter(t => t.result === 'loss').length;
+  const be = filtered.filter(t => t.result === 'breakeven').length;
+  const winRate = Math.round((wins / total) * 100);
+  const totalPnl = filtered.reduce((s, t) => s + (t.pnl || 0), 0);
+  const avgDisc = (filtered.reduce((s, t) => s + t.discScore, 0) / total).toFixed(1);
+  const discPct = Math.round((parseFloat(avgDisc) / 10) * 100);
+  const planPct = Math.round((filtered.filter(t => t.plan === 'yes').length / total) * 100);
+  const avgPnlWin = wins > 0 ? (filtered.filter(t => t.result === 'win').reduce((s, t) => s + t.pnl, 0) / wins).toFixed(2) : 0;
+  const avgPnlLoss = losses > 0 ? (filtered.filter(t => t.result === 'loss').reduce((s, t) => s + Math.abs(t.pnl), 0) / losses).toFixed(2) : 0;
+
+  // Top missed rules
+  const missedCount = {};
+  filtered.forEach(t => (t.missedRules || []).forEach(r => { missedCount[r] = (missedCount[r] || 0) + 1; }));
+  const topMissed = Object.entries(missedCount).sort((a,b) => b[1]-a[1]).slice(0, 3);
+
+  // Emotion analysis
+  const emotionCount = {};
+  filtered.forEach(t => { if(t.emotion) emotionCount[t.emotion] = (emotionCount[t.emotion] || 0) + 1; });
+  const topEmotion = Object.entries(emotionCount).sort((a,b) => b[1]-a[1])[0];
+
+  // Best setup
+  const setupWins = {};
+  filtered.filter(t => t.result === 'win' && t.setup).forEach(t => { setupWins[t.setup] = (setupWins[t.setup] || 0) + 1; });
+  const bestSetup = Object.entries(setupWins).sort((a,b) => b[1]-a[1])[0];
+
+  // Feedback
+  const feedbacks = [];
+  if (winRate >= 55) feedbacks.push({ type: 'good', title: '✅ Strong Win Rate', text: `${winRate}% win rate excellent hai. Apna setup refinement jari rakhen.` });
+  else if (winRate >= 45) feedbacks.push({ type: 'warn', title: '⚡ Average Win Rate', text: `${winRate}% win rate theek hai, lekin entry criteria tighter karne ki zaroorat hai.` });
+  else feedbacks.push({ type: 'bad', title: '❌ Win Rate Needs Work', text: `${winRate}% win rate low hai. Setups review karen aur only A+ trades len.` });
+
+  if (discPct >= 80) feedbacks.push({ type: 'good', title: '🎯 Excellent Discipline', text: 'Aap apne rules follow kar rahe hain. Yahi professional trading hai.' });
+  else if (discPct >= 60) feedbacks.push({ type: 'warn', title: '⚠️ Discipline Improve Karo', text: 'Kuch rules miss ho rahe hain. Checklist daily follow karo bina exception ke.' });
+  else feedbacks.push({ type: 'bad', title: '🚨 Serious Discipline Issue', text: 'Bina rules ke trading gambling hai. Rules se trading discipline aati hai.' });
+
+  if (topEmotion && topEmotion[0] !== 'calm' && topEmotion[0] !== 'confident') {
+    feedbacks.push({ type: 'warn', title: '🧠 Emotional Trading Alert', text: `Aapki zyada trades ${topEmotion[0]} state mein hain. Market se pehle apna mind manage karo.` });
+  }
+
+  const impScore = Math.round((winRate * 0.35) + (discPct * 0.40) + (planPct * 0.25));
+  const pnlColor = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+
+  document.getElementById('reportContent').innerHTML = `
+    <div class="report-header">
+      <div class="report-title">📊 Performance Report</div>
+      <div class="report-period">${label} · ${total} trades analyzed</div>
+      <div class="report-grid">
+        <div class="report-stat"><div class="report-stat-value ${winRate >= 50 ? 'green' : 'red'}">${winRate}%</div><div class="report-stat-label">Win Rate</div></div>
+        <div class="report-stat"><div class="report-stat-value" style="color:${pnlColor}">${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)}</div><div class="report-stat-label">Total P&L</div></div>
+        <div class="report-stat"><div class="report-stat-value orange">${impScore}</div><div class="report-stat-label">Improvement Score</div></div>
+        <div class="report-stat"><div class="report-stat-value">${wins}W / ${losses}L / ${be}BE</div><div class="report-stat-label">Results Breakdown</div></div>
+        <div class="report-stat"><div class="report-stat-value">$${avgPnlWin}</div><div class="report-stat-label">Avg Win</div></div>
+        <div class="report-stat"><div class="report-stat-value" style="color:var(--red)">$${avgPnlLoss}</div><div class="report-stat-label">Avg Loss</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <div class="card-title">📈 Performance Metrics</div>
+      <div class="progress-section">
+        <div class="progress-item">
+          <div class="progress-label"><span>Discipline Score</span><span>${avgDisc}/10 (${discPct}%)</span></div>
+          <div class="progress-bar"><div class="progress-fill fill-orange" style="width:${discPct}%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label"><span>Plan Followed</span><span>${planPct}%</span></div>
+          <div class="progress-bar"><div class="progress-fill fill-green" style="width:${planPct}%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label"><span>Win Rate</span><span>${winRate}%</span></div>
+          <div class="progress-bar"><div class="progress-fill fill-blue" style="width:${winRate}%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label"><span>Overall Improvement Score</span><span>${impScore}/100</span></div>
+          <div class="progress-bar"><div class="progress-fill fill-orange" style="width:${impScore}%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <div class="card-title">💡 Analysis & Feedback</div>
+      ${feedbacks.map(f => `<div class="feedback-box ${f.type}"><h4>${f.title}</h4><p>${f.text}</p></div>`).join('')}
+      ${bestSetup ? `<div class="feedback-box good"><h4>⭐ Best Performing Setup</h4><p>"${bestSetup[0]}" se ${bestSetup[1]} wins mili hain. Iss setup ko prioritize karo.</p></div>` : ''}
+      ${topMissed.length ? `<div class="feedback-box warn"><h4>⚠️ Most Missed Rules</h4><ul style="font-size:13px;color:var(--text2);padding-left:16px;line-height:2">${topMissed.map(([r,c]) => `<li>${r} (${c}x)</li>`).join('')}</ul></div>` : ''}
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎯 Action Plan for Next Week</div>
+      <div style="font-size:13px;color:var(--text2);line-height:2;">
+        ${winRate < 50 ? '• Sirf A+ setups lo. Koi mediocre setup nahi.<br>' : '• Win rate acha hai. Consistency maintain karo.<br>'}
+        ${discPct < 70 ? '• Har trade se pehle checklist complete karo. Ek bhi miss mat karo.<br>' : '• Discipline excellent hai. Isi pe qayam raho.<br>'}
+        ${planPct < 70 ? '• Trading plan se bahar mat jao. Plan nahi to trade nahi.<br>' : '• Plan follow karna acha hai. Aage bhi aise karo.<br>'}
+        • Har trade ke baad 2 minute journal mein notes likhna na bhulen.<br>
+        • Weekly is report ko zaroor dekhen aur improvement track karen.
+      </div>
+    </div>
+  `;
+}
+
+function exportReport() {
+  const content = document.getElementById('reportContent').innerText;
+  const blob = new Blob([`TradeEdge Journal - Report\n${'='.repeat(40)}\n${content}`], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `tradeedge-report-${new Date().toISOString().split('T')[0]}.txt`;
+  a.click();
+  showToast('📄 Report download ho rahi hai');
+}
+
+// ===== RULES =====
+function renderRules() {
+  const container = document.getElementById('rulesList');
+  container.innerHTML = rules.map((r, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <span style="flex:1;font-size:13px;">${i + 1}. ${r}</span>
+      <button class="btn btn-secondary btn-sm" onclick="deleteRule(${i})" style="color:var(--red);border-color:var(--red);">✕</button>
+    </div>
+  `).join('') || '<div style="color:var(--text3);font-size:13px;padding:12px 0;">Koi rules nahi. Apne rules add karen.</div>';
+}
+
+function addRule() {
+  const val = document.getElementById('newRuleInput').value.trim();
+  if (!val) return;
+  rules.push(val);
+  setData('tj_rules', rules);
+  document.getElementById('newRuleInput').value = '';
+  renderRules();
+  renderDisciplineChecks();
+  showToast('✅ Rule add ho gaya');
+}
+
+function deleteRule(i) {
+  rules.splice(i, 1);
+  setData('tj_rules', rules);
+  renderRules();
+  renderDisciplineChecks();
+  showToast('Rule delete ho gaya');
+}
+
+// ===== STREAK =====
+function updateStreak() {
+  if (!trades.length) return;
+  const dates = [...new Set(trades.map(t => t.date))].sort().reverse();
+  let streak = 0;
+  const today = new Date().toISOString().split('T')[0];
+  let checkDate = new Date(today);
+  for (let d of dates) {
+    const tradeDate = d;
+    const checkStr = checkDate.toISOString().split('T')[0];
+    if (tradeDate === checkStr) { streak++; checkDate.setDate(checkDate.getDate() - 1); }
+    else break;
+  }
+  document.getElementById('streakBadge').textContent = `🔥 ${streak} Day${streak !== 1 ? 's' : ''}`;
+}
+
+// ===== UTILS =====
+function formatDate(d) { if (!d) return '-'; return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function clearAll() {
+  if (!confirm('Sarey trades aur mistakes delete karna chahte hain? Yeh action undo nahi hoga.')) return;
+  trades = []; rules = DEFAULT_RULES; mistakes = [];
+  setData('tj_trades', trades); setData('tj_rules', rules); setData('tj_mistakes', mistakes);
+  renderDashboard(); renderJournal(); renderRules(); renderDisciplineChecks(); renderMistakes();
+  showToast('🗑️ Sab data clear ho gaya');
+}
+
+
+// ===== MISTAKES =====
+let mistakes = getData('tj_mistakes', []);
+let mistakeFilter = 'all';
+
+const catLabels = {
+  discipline:'⚖️ Discipline', entry:'🎯 Entry', exit:'🚪 Exit',
+  sl:'🛑 Stop Loss', emotion:'🧠 Emotion', overtrading:'📉 Overtrading',
+  fomo:'⚡ FOMO', plan:'📋 Plan', sizing:'💰 Position Size', other:'🔖 Other'
+};
+const catColors = {
+  discipline:'var(--blue)', entry:'var(--accent)', exit:'var(--accent2)',
+  sl:'var(--red)', emotion:'#9b59b6', overtrading:'var(--red)',
+  fomo:'var(--yellow)', plan:'var(--green)', sizing:'var(--accent)', other:'var(--text3)'
+};
+const catBg = {
+  discipline:'var(--blue-bg)', entry:'#fff0e8', exit:'#fff5ea',
+  sl:'var(--red-bg)', emotion:'#f5edfb', overtrading:'var(--red-bg)',
+  fomo:'var(--yellow-bg)', plan:'var(--green-bg)', sizing:'#fff0e8', other:'var(--surface2)'
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('mDate').value = new Date().toISOString().split('T')[0];
+  renderMistakes();
+});
+
+function saveMistake() {
+  const desc = document.getElementById('mDesc').value.trim();
+  if (!desc) { showToast('⚠️ Ghalti ka byaan zaroor likhein'); return; }
+  const m = {
+    id: Date.now(),
+    date: document.getElementById('mDate').value,
+    cat: document.getElementById('mCat').value,
+    desc: desc,
+    symbol: document.getElementById('mSym').value.trim().toUpperCase(),
+    loss: parseFloat(document.getElementById('mLoss').value) || 0,
+    fix: document.getElementById('mFix').value.trim(),
+    reviewed: false,
+  };
+  mistakes.unshift(m);
+  setData('tj_mistakes', mistakes);
+  clearMistakeForm();
+  renderMistakes();
+  showToast('✅ Ghalti save ho gayi — kal isse yaad rakhna!');
+}
+
+function clearMistakeForm() {
+  document.getElementById('mDesc').value = '';
+  document.getElementById('mSym').value = '';
+  document.getElementById('mLoss').value = '';
+  document.getElementById('mFix').value = '';
+  document.getElementById('mDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('mCat').selectedIndex = 0;
+}
+
+function filterMistakes(f, btn) {
+  mistakeFilter = f;
+  document.querySelectorAll('#mistakeFilters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMistakes();
+}
+
+function toggleReviewed(id) {
+  const m = mistakes.find(x => x.id === id);
+  if (m) { m.reviewed = !m.reviewed; setData('tj_mistakes', mistakes); renderMistakes(); }
+}
+
+function deleteMistake(id) {
+  mistakes = mistakes.filter(x => x.id !== id);
+  setData('tj_mistakes', mistakes);
+  renderMistakes();
+  showToast('🗑️ Ghalti delete ho gayi');
+}
+
+function renderMistakes() {
+  document.getElementById('mistakeCount').textContent = mistakes.length;
+  let list = [...mistakes];
+  if (mistakeFilter !== 'all') list = list.filter(m => m.cat === mistakeFilter);
+
+  const container = document.getElementById('mistakesList');
+  if (!list.length) {
+    container.innerHTML = `<div class="empty-state card"><div class="icon">${mistakeFilter === 'all' ? '🎉' : '🔍'}</div><p>${mistakeFilter === 'all' ? 'Abhi tak koi ghalti record nahi.<br>Pehli ghalti likhne se hi seekhna shuru hota hai.' : 'Is category mein koi ghalti nahi mili.'}</p></div>`;
+    return;
+  }
+
+  // Group by date
+  const grouped = {};
+  list.forEach(m => { if (!grouped[m.date]) grouped[m.date] = []; grouped[m.date].push(m); });
+  const sortedDates = Object.keys(grouped).sort((a,b) => new Date(b) - new Date(a));
+
+  container.innerHTML = sortedDates.map(date => `
+    <div style="margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--text);">${formatDate(date)}</div>
+        <div style="flex:1;height:1.5px;background:var(--border);"></div>
+        <div style="font-size:12px;font-weight:700;color:var(--text3);">${grouped[date].length} ghalti</div>
+      </div>
+      ${grouped[date].map(m => mistakeCardHTML(m)).join('')}
+    </div>
+  `).join('');
+}
+
+function mistakeCardHTML(m) {
+  const color = catColors[m.cat] || 'var(--text3)';
+  const bg = catBg[m.cat] || 'var(--surface2)';
+  const label = catLabels[m.cat] || m.cat;
+  return `
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-left:4px solid ${color};border-radius:var(--radius);padding:18px 20px;margin-bottom:10px;${m.reviewed ? 'opacity:0.6;' : ''}">
+      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;">
+        <span style="background:${bg};color:${color};font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;flex-shrink:0;">${label}</span>
+        ${m.symbol ? `<span style="background:var(--surface2);color:var(--text2);font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;">${m.symbol}</span>` : ''}
+        ${m.loss ? `<span style="background:var(--red-bg);color:var(--red);font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;">-$${Math.abs(m.loss)}</span>` : ''}
+        <div style="margin-left:auto;display:flex;gap:6px;flex-shrink:0;">
+          <button onclick="toggleReviewed(${m.id})" title="${m.reviewed ? 'Reviewed' : 'Mark as Reviewed'}"
+            style="background:${m.reviewed ? 'var(--green-bg)' : 'var(--surface2)'};color:${m.reviewed ? 'var(--green)' : 'var(--text3)'};border:1.5px solid ${m.reviewed ? 'var(--green)' : 'var(--border)'};border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;">
+            ${m.reviewed ? '✅ Padh liya' : '👁️ Review'}
+          </button>
+          <button onclick="deleteMistake(${m.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 6px;">✕</button>
+        </div>
+      </div>
+      <div style="font-size:14px;color:var(--text);line-height:1.7;margin-bottom:${m.fix ? '10px' : '0'};">${m.desc}</div>
+      ${m.fix ? `
+        <div style="background:var(--green-bg);border-radius:8px;padding:10px 14px;border-left:3px solid var(--green);">
+          <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px;">💪 MERA COMMITMENT</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6;">${m.fix}</div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+document.querySelectorAll('.stat-card').forEach((c, i) => {
+  const colors = ['var(--accent)', 'var(--green)', 'var(--accent2)', 'var(--blue)'];
+  c.style.setProperty('--accent', colors[i] || 'var(--accent)');
+  c.querySelector('::before');
+});
+</script>
+</body>
+</html>
